@@ -1,0 +1,30 @@
+apply plugin: 'groovy'
+
+sourceCompatibility = 11
+targetCompatibility = 11
+
+group 'masmar.home'
+version '1.0'
+description 'Project with algorithms solving'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile "org.codehaus.groovy:groovy-all:2.5.8"
+    testCompile(
+            'org.codehaus.groovy:groovy-all:3.0.5',
+            'org.spockframework:spock-core:2.0-M3-groovy-3.0',
+            'junit:junit:4.12',
+
+    )
+}
+
+test {
+    useJUnitPlatform()
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
+
+}
