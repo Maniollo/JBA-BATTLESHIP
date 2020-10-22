@@ -8,7 +8,7 @@ class Coordinate {
 
     public Coordinate(String coordinates) {
         if (invalidLength(coordinates) || invalidRow(coordinates.charAt(0)) || invalidColumn(coordinates.substring(1))) {
-            throw new IllegalArgumentException("Incorrect input");
+            throw new IllegalArgumentException("You entered the wrong coordinates!");
         }
         this.row = coordinates.charAt(0);
         this.column = Integer.parseInt(coordinates.substring(1));

@@ -25,6 +25,6 @@ class CoordinateSpec extends Specification {
 
         then:
         IllegalArgumentException ex = thrown()
-        ex.message == "Incorrect input"
+        ex.message == "You entered the wrong coordinates!"
     }
 }

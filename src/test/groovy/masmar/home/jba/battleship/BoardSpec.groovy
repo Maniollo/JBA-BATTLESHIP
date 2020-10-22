@@ -86,5 +86,51 @@ class BoardSpec extends Specification {
                 "I ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n" +
                 "J ~ ~ ~ ~ ~ ~ ~ O O O"
     }
+
+    def "should return the shot result"() {
+        given:
+        def board = Board.create()
+        def ship = new Ship(Type.AIRCRAFT_CARRIER)
+        ship.setCoordinates(new Coordinate("A1"), new Coordinate("A5"))
+        board.addShip(ship)
+
+        when:
+        def shotResult = board.shot(new Coordinate("A6"))
+
+        then:
+        shotResult == ShotResult.MISSED
+        and:
+        board.display() ==
+                "  1 2 3 4 5 6 7 8 9 10\n" +
+                "A O O O O O M ~ ~ ~ ~\n" +
+                "B ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n" +
+                "C ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n" +
+                "D ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n" +
+                "E ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n" +
+                "F ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n" +
+                "G ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n" +
+                "H ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n" +
+                "I ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n" +
+                "J ~ ~ ~ ~ ~ ~ ~ ~ ~ ~"
+
+        when:
+        def secondShotResult = board.shot(new Coordinate("A3"))
+
+        then:
+        secondShotResult == ShotResult.HIT
+        and:
+        board.display() ==
+                "  1 2 3 4 5 6 7 8 9 10\n" +
+                "A O O X O O M ~ ~ ~ ~\n" +
+                "B ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n" +
+                "C ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n" +
+                "D ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n" +
+                "E ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n" +
+                "F ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n" +
+                "G ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n" +
+                "H ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n" +
+                "I ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n" +
+                "J ~ ~ ~ ~ ~ ~ ~ ~ ~ ~"
+    }
 }
 

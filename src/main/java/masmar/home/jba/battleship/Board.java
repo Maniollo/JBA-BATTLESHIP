@@ -46,6 +46,16 @@ class Board {
         }
     }
 
+    public ShotResult shot(Coordinate coordinate) {
+        if (board[coordinate.getRowAsNumber()][coordinate.getColumn() - 1] == Symbol.SHIP) {
+            board[coordinate.getRowAsNumber()][coordinate.getColumn() - 1] = Symbol.HIT;
+            return ShotResult.HIT;
+        } else {
+            board[coordinate.getRowAsNumber()][coordinate.getColumn() - 1] = Symbol.MISS;
+            return ShotResult.MISSED;
+        }
+    }
+
     private boolean failNeighbourhoodCheck(List<Coordinate> coordinates) {
         for (Coordinate coordinate : coordinates) {
             int x = coordinate.getRowAsNumber();
