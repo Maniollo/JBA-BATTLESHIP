@@ -92,7 +92,36 @@ class BoardSpec extends Specification {
         def board = Board.create()
         def ship = new Ship(Type.AIRCRAFT_CARRIER)
         ship.setCoordinates(new Coordinate("A1"), new Coordinate("A5"))
+
+        when:
         board.addShip(ship)
+
+        then:
+        board.display() ==
+                "  1 2 3 4 5 6 7 8 9 10\n" +
+                "A O O O O O ~ ~ ~ ~ ~\n" +
+                "B ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n" +
+                "C ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n" +
+                "D ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n" +
+                "E ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n" +
+                "F ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n" +
+                "G ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n" +
+                "H ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n" +
+                "I ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n" +
+                "J ~ ~ ~ ~ ~ ~ ~ ~ ~ ~"
+        and:
+        board.displayMasked() ==
+                "  1 2 3 4 5 6 7 8 9 10\n" +
+                "A ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n" +
+                "B ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n" +
+                "C ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n" +
+                "D ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n" +
+                "E ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n" +
+                "F ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n" +
+                "G ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n" +
+                "H ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n" +
+                "I ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n" +
+                "J ~ ~ ~ ~ ~ ~ ~ ~ ~ ~"
 
         when:
         def shotResult = board.shot(new Coordinate("A6"))
@@ -103,6 +132,19 @@ class BoardSpec extends Specification {
         board.display() ==
                 "  1 2 3 4 5 6 7 8 9 10\n" +
                 "A O O O O O M ~ ~ ~ ~\n" +
+                "B ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n" +
+                "C ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n" +
+                "D ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n" +
+                "E ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n" +
+                "F ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n" +
+                "G ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n" +
+                "H ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n" +
+                "I ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n" +
+                "J ~ ~ ~ ~ ~ ~ ~ ~ ~ ~"
+        and:
+        board.displayMasked() ==
+                "  1 2 3 4 5 6 7 8 9 10\n" +
+                "A ~ ~ ~ ~ ~ M ~ ~ ~ ~\n" +
                 "B ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n" +
                 "C ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n" +
                 "D ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n" +
@@ -131,6 +173,20 @@ class BoardSpec extends Specification {
                 "H ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n" +
                 "I ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n" +
                 "J ~ ~ ~ ~ ~ ~ ~ ~ ~ ~"
+        and:
+        board.displayMasked() ==
+                "  1 2 3 4 5 6 7 8 9 10\n" +
+                "A ~ ~ X ~ ~ M ~ ~ ~ ~\n" +
+                "B ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n" +
+                "C ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n" +
+                "D ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n" +
+                "E ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n" +
+                "F ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n" +
+                "G ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n" +
+                "H ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n" +
+                "I ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n" +
+                "J ~ ~ ~ ~ ~ ~ ~ ~ ~ ~"
+
     }
 }
 
