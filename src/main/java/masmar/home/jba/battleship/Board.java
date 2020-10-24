@@ -39,10 +39,10 @@ class Board {
 
     public void addShip(Ship ship) {
         List<Coordinate> coordinates = ship.getCoordinates();
-        ships.put(ship.getName(), ship.getCoordinates());
         if (failNeighbourhoodCheck(coordinates)) {
             throw new IllegalStateException("You placed it too close to another one.");
         }
+        ships.put(ship.getName(), coordinates);
         for (Coordinate coordinate : coordinates) {
             board[coordinate.getRowAsNumber()][coordinate.getColumn() - 1] = Symbol.SHIP;
         }
@@ -53,28 +53,30 @@ class Board {
                 || board[coordinate.getRowAsNumber()][coordinate.getColumn() - 1] == Symbol.HIT) {
             board[coordinate.getRowAsNumber()][coordinate.getColumn() - 1] = Symbol.HIT;
             maskedBoard[coordinate.getRowAsNumber()][coordinate.getColumn() - 1] = Symbol.HIT;
+
             Optional<String> maybeShipName = ships.entrySet().stream()
                     .filter(entry -> entry.getValue().stream().anyMatch(shipCoordinate -> shipCoordinate.equals(coordinate)))
                     .map(Map.Entry::getKey)
                     .findFirst();
+
             if (maybeShipName.isEmpty()) {
                 return ShotResult.HIT;
-            }
-
-            String shipName = maybeShipName.get();
-            List<Coordinate> updated = ships.get(shipName).stream()
-                    .filter(coordinate1 -> !coordinate1.equals(coordinate))
-                    .collect(Collectors.toList());
-            if (updated.isEmpty()) {
-                ships.remove(shipName);
-                if (ships.isEmpty()) {
-                    return ShotResult.ALL_SANK;
-                } else {
-                    return ShotResult.SANK;
-                }
             } else {
-                ships.replace(shipName, updated);
-                return ShotResult.HIT;
+                String shipName = maybeShipName.get();
+                List<Coordinate> updated = ships.get(shipName).stream()
+                        .filter(coordinate1 -> !coordinate1.equals(coordinate))
+                        .collect(Collectors.toList());
+                if (updated.isEmpty()) {
+                    ships.remove(shipName);
+                    if (ships.isEmpty()) {
+                        return ShotResult.ALL_SANK;
+                    } else {
+                        return ShotResult.SANK;
+                    }
+                } else {
+                    ships.replace(shipName, updated);
+                    return ShotResult.HIT;
+                }
             }
         } else {
             board[coordinate.getRowAsNumber()][coordinate.getColumn() - 1] = Symbol.MISS;
