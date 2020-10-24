@@ -87,14 +87,18 @@ class BoardSpec extends Specification {
                 "J ~ ~ ~ ~ ~ ~ ~ O O O"
     }
 
-    def "should return the shot result"() {
+    def "should return the current status after shots"() {
         given:
         def board = Board.create()
         def ship = new Ship(Type.AIRCRAFT_CARRIER)
+        def anotherShip = new Ship(Type.DESTROYER)
         ship.setCoordinates(new Coordinate("A1"), new Coordinate("A5"))
+        anotherShip.setCoordinates(new Coordinate("J1"), new Coordinate("J2"))
 
         when:
         board.addShip(ship)
+        and:
+        board.addShip(anotherShip)
 
         then:
         board.display() ==
@@ -108,7 +112,7 @@ class BoardSpec extends Specification {
                 "G ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n" +
                 "H ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n" +
                 "I ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n" +
-                "J ~ ~ ~ ~ ~ ~ ~ ~ ~ ~"
+                "J O O ~ ~ ~ ~ ~ ~ ~ ~"
         and:
         board.displayMasked() ==
                 "  1 2 3 4 5 6 7 8 9 10\n" +
@@ -140,7 +144,7 @@ class BoardSpec extends Specification {
                 "G ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n" +
                 "H ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n" +
                 "I ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n" +
-                "J ~ ~ ~ ~ ~ ~ ~ ~ ~ ~"
+                "J O O ~ ~ ~ ~ ~ ~ ~ ~"
         and:
         board.displayMasked() ==
                 "  1 2 3 4 5 6 7 8 9 10\n" +
@@ -172,7 +176,7 @@ class BoardSpec extends Specification {
                 "G ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n" +
                 "H ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n" +
                 "I ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n" +
-                "J ~ ~ ~ ~ ~ ~ ~ ~ ~ ~"
+                "J O O ~ ~ ~ ~ ~ ~ ~ ~"
         and:
         board.displayMasked() ==
                 "  1 2 3 4 5 6 7 8 9 10\n" +
@@ -187,6 +191,57 @@ class BoardSpec extends Specification {
                 "I ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n" +
                 "J ~ ~ ~ ~ ~ ~ ~ ~ ~ ~"
 
+        when:
+        board.shot(new Coordinate("A1"))
+        and:
+        board.shot(new Coordinate("A2"))
+        and:
+        board.shot(new Coordinate("A4"))
+        and:
+        def fifthShot = board.shot(new Coordinate("A5"))
+
+        then:
+        fifthShot == ShotResult.SANK
+
+        and:
+        board.displayMasked() ==
+                "  1 2 3 4 5 6 7 8 9 10\n" +
+                "A X X X X X M ~ ~ ~ ~\n" +
+                "B ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n" +
+                "C ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n" +
+                "D ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n" +
+                "E ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n" +
+                "F ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n" +
+                "G ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n" +
+                "H ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n" +
+                "I ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n" +
+                "J ~ ~ ~ ~ ~ ~ ~ ~ ~ ~"
+
+        when:
+        def againHitShot = board.shot(new Coordinate("A1"))
+        then:
+        againHitShot == ShotResult.HIT
+
+        when:
+        board.shot(new Coordinate("J1"))
+        and:
+        def lastShot = board.shot(new Coordinate("J2"))
+
+        then:
+        lastShot == ShotResult.ALL_SANK
+        and:
+        board.displayMasked() ==
+                "  1 2 3 4 5 6 7 8 9 10\n" +
+                "A X X X X X M ~ ~ ~ ~\n" +
+                "B ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n" +
+                "C ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n" +
+                "D ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n" +
+                "E ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n" +
+                "F ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n" +
+                "G ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n" +
+                "H ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n" +
+                "I ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n" +
+                "J X X ~ ~ ~ ~ ~ ~ ~ ~"
     }
 }
 

@@ -1,5 +1,5 @@
 package masmar.home.jba.battleship;
 
 public enum ShotResult {
-    HIT, MISSED
+    HIT, MISSED, SANK, ALL_SANK
 }
