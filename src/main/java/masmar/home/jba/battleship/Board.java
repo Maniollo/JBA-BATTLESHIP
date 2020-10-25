@@ -1,40 +1,53 @@
 package masmar.home.jba.battleship;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toList;
 
 class Board {
-    private final Symbol[][] board;
-    private final Symbol[][] maskedBoard;
     private final Map<String, List<Coordinate>> ships;
+    private final List<Coordinate> hits;
+    private final List<Coordinate> misses;
 
-    private Board(Symbol[][] board, Symbol[][] maskedBoard) {
-        this.board = board;
-        this.maskedBoard = maskedBoard;
+    private Board() {
         this.ships = new HashMap<>();
+        this.hits = new ArrayList<>();
+        this.misses = new ArrayList<>();
     }
 
     public static Board create() {
-        Symbol[][] board = new Symbol[10][10];
+        return new Board();
+    }
+
+    private static Symbol[][] emptyBoard() {
         Symbol[][] maskedBoard = new Symbol[10][10];
         for (int i = 0; i < 10; i++) {
             for (int j = 0; j < 10; j++) {
-                board[i][j] = Symbol.FOG;
                 maskedBoard[i][j] = Symbol.FOG;
             }
         }
-        return new Board(board, maskedBoard);
+        return maskedBoard;
     }
 
     public String display() {
+        Symbol[][] board = emptyBoard();
+        hits.forEach(coordinate -> board[coordinate.getRowAsNumber()][coordinate.getColumn() - 1] = Symbol.HIT);
+        misses.forEach(coordinate -> board[coordinate.getRowAsNumber()][coordinate.getColumn() - 1] = Symbol.MISS);
+        getAllShipsCoordinates().forEach(coordinate -> board[coordinate.getRowAsNumber()][coordinate.getColumn() - 1] = Symbol.SHIP);
+
         return asString(board);
     }
 
     public String displayMasked() {
-        return asString(maskedBoard);
+        Symbol[][] board = emptyBoard();
+        hits.forEach(coordinate -> board[coordinate.getRowAsNumber()][coordinate.getColumn() - 1] = Symbol.HIT);
+        misses.forEach(coordinate -> board[coordinate.getRowAsNumber()][coordinate.getColumn() - 1] = Symbol.MISS);
+        return asString(board);
     }
 
     public void addShip(Ship ship) {
@@ -43,18 +56,15 @@ class Board {
             throw new IllegalStateException("You placed it too close to another one.");
         }
         ships.put(ship.getName(), coordinates);
-        for (Coordinate coordinate : coordinates) {
-            board[coordinate.getRowAsNumber()][coordinate.getColumn() - 1] = Symbol.SHIP;
-        }
     }
 
     public ShotResult shot(Coordinate coordinate) {
-        if (board[coordinate.getRowAsNumber()][coordinate.getColumn() - 1] == Symbol.SHIP
-                || board[coordinate.getRowAsNumber()][coordinate.getColumn() - 1] == Symbol.HIT) {
-            board[coordinate.getRowAsNumber()][coordinate.getColumn() - 1] = Symbol.HIT;
-            maskedBoard[coordinate.getRowAsNumber()][coordinate.getColumn() - 1] = Symbol.HIT;
+        List<Coordinate> ships = getAllShipsCoordinates();
 
-            Optional<String> maybeShipName = ships.entrySet().stream()
+        if (ships.contains(coordinate) || hits.contains(coordinate)) {
+            hits.add(coordinate);
+
+            Optional<String> maybeShipName = this.ships.entrySet().stream()
                     .filter(entry -> entry.getValue().stream().anyMatch(shipCoordinate -> shipCoordinate.equals(coordinate)))
                     .map(Map.Entry::getKey)
                     .findFirst();
@@ -63,26 +73,27 @@ class Board {
                 return ShotResult.HIT;
             } else {
                 String shipName = maybeShipName.get();
-                List<Coordinate> updated = ships.get(shipName).stream()
+                List<Coordinate> updated = this.ships.get(shipName).stream()
                         .filter(coordinate1 -> !coordinate1.equals(coordinate))
-                        .collect(Collectors.toList());
+                        .collect(toList());
                 if (updated.isEmpty()) {
-                    ships.remove(shipName);
-                    if (ships.isEmpty()) {
-                        return ShotResult.ALL_SANK;
-                    } else {
-                        return ShotResult.SANK;
-                    }
+                    this.ships.remove(shipName);
+                    return this.ships.isEmpty() ? ShotResult.ALL_SANK : ShotResult.SANK;
                 } else {
-                    ships.replace(shipName, updated);
+                    this.ships.replace(shipName, updated);
                     return ShotResult.HIT;
                 }
             }
         } else {
-            board[coordinate.getRowAsNumber()][coordinate.getColumn() - 1] = Symbol.MISS;
-            maskedBoard[coordinate.getRowAsNumber()][coordinate.getColumn() - 1] = Symbol.MISS;
+            misses.add(coordinate);
             return ShotResult.MISSED;
         }
+    }
+
+    private List<Coordinate> getAllShipsCoordinates() {
+        return this.ships.values().stream()
+                .flatMap(Collection::stream)
+                .collect(toList());
     }
 
     private String asString(Symbol[][] board) {
@@ -103,62 +114,9 @@ class Board {
     }
 
     private boolean failNeighbourhoodCheck(List<Coordinate> coordinates) {
-        for (Coordinate coordinate : coordinates) {
-            int x = coordinate.getRowAsNumber();
-            int y = coordinate.getColumn() - 1;
-
-            if (board[x][y] != Symbol.FOG) {
-                return true;
-            }
-
-            if (x > 0) { // UP
-                if (board[x - 1][y] != Symbol.FOG) {
-                    return true;
-                }
-
-                if (y < 9) { // UP LEFT
-                    if (board[x - 1][y + 1] != Symbol.FOG) {
-                        return true;
-                    }
-                }
-
-                if (y > 0) { // UP LEFT
-                    if (board[x - 1][y - 1] != Symbol.FOG) {
-                        return true;
-                    }
-                }
-            }
-
-            if (y < 9) { // LEFT
-                if (board[x][y + 1] != Symbol.FOG) {
-                    return true;
-                }
-            }
-
-            if (x < 9) { // DOWN
-                if (board[x + 1][y] != Symbol.FOG) {
-                    return true;
-                }
-
-                if (y < 9) { // DOWN LEFT
-                    if (board[x + 1][y + 1] != Symbol.FOG) {
-                        return true;
-                    }
-                }
-
-                if (y > 0) { // DOWN LEFT
-                    if (board[x + 1][y - 1] != Symbol.FOG) {
-                        return true;
-                    }
-                }
-            }
-
-            if (y > 0) { // RIGHT
-                if (board[x][y - 1] != Symbol.FOG) {
-                    return true;
-                }
-            }
-        }
-        return false;
+        List<Coordinate> ships = getAllShipsCoordinates();
+        return coordinates.stream()
+                .anyMatch(coordinate -> ships.contains(coordinate) ||
+                        coordinate.getNeighbours().stream().anyMatch(ships::contains));
     }
 }
