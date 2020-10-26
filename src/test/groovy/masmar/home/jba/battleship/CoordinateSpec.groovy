@@ -27,4 +27,15 @@ class CoordinateSpec extends Specification {
         IllegalArgumentException ex = thrown()
         ex.message == "You entered the wrong coordinates!"
     }
+
+    def "should return list of Neighbours"() {
+        expect:
+        new Coordinate(coordinate).getNeighbours() == neighbours
+
+        where:
+        coordinate || neighbours
+        "A1"       || [new Coordinate("A2"), new Coordinate("B1"), new Coordinate("B2")]
+        "I9"       || [new Coordinate("H9"), new Coordinate("H10"), new Coordinate("H8"), new Coordinate("I10"), new Coordinate("J9"),
+                       new Coordinate("J10"), new Coordinate("J8"), new Coordinate("I8")]
+    }
 }
